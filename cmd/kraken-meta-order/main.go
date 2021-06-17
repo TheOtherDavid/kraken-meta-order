@@ -3,29 +3,16 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"encoding/json"
+
 	"net/http"
+
+	"github.com/TheOtherDavid/kraken-meta-order/internal/db"
+	"github.com/TheOtherDavid/kraken-meta-order/internal/models"
 
 	"github.com/gorilla/mux"
 )
-
-type MetaOrder struct {
-	MetaOrderId        int                `json:"metaOrderId"`
-	MetaOrderType      string             `json:"metaOrderType"`
-	Status             string             `json:"status"`
-	StopLossTakeProfit StopLossTakeProfit `json:"stopLossTakeProfit"`
-	CreateDateTime     time.Time          `json:"createDateTime"`
-	CreateUserName     string             `json:"createUserName"`
-	LastUpdateDateTime time.Time          `json:"lastUpdateDateTime"`
-	LastUpdateUserName string             `json:"lastUpdateUserName"`
-}
-
-type StopLossTakeProfit struct {
-	StopLossPrice   float32 `json:"stopLossPrice"`
-	TakeProfitPrice float32 `json:"takeProfitPrice"`
-}
 
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	respondWithJSON(w, code, map[string]string{"error": message})
@@ -39,16 +26,26 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func createMetaOrder(w http.ResponseWriter, r *http.Request) {
-	var metaOrder MetaOrder
+func createMetaOrder() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var metaOrder models.MetaOrder
 
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&metaOrder); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&metaOrder); err != nil {
+			respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			return
+		}
+
+		returnedMetaOrder, err := db.CreateMetaOrder(metaOrder)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error saving to DB")
+			return
+		}
+
+		defer r.Body.Close()
+
+		json.NewEncoder(w).Encode(returnedMetaOrder)
 	}
-	defer r.Body.Close()
-	fmt.Fprint(w, "Create Order")
 }
 
 func getMetaOrder(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +58,7 @@ func deleteMetaOrder(w http.ResponseWriter, r *http.Request) {
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/create/{msg}", createMetaOrder).Methods("POST")
+	myRouter.HandleFunc("/create/{msg}", createMetaOrder()).Methods("POST")
 	myRouter.HandleFunc("/{msg}", getMetaOrder).Methods("GET")
 	myRouter.HandleFunc("/delete/{msg}", deleteMetaOrder).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", myRouter))

@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  database:
+    image: postgres
+    restart: always
+    env_file:
+      - .env
+    networks:
+    - my-network
+    ports:
+      - "5432:5432"
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env
+    depends_on:
+      - database
+    networks:
+      - my-network
+    ports:
+    - "8080:8080"
+networks:
+    my-network:
+        external: true
