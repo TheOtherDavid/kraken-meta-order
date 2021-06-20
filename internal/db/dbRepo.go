@@ -38,7 +38,7 @@ func CreateMetaOrder(metaOrder models.MetaOrder) (*models.MetaOrder, error) {
 	var weight int64
 	log.Println("Beginning query.")
 
-	err = conn.QueryRow("insert into kraken_meta_order.meta_order (meta_order_type) values ("+metaOrder.MetaOrderType+")", 42).Scan(&name, &weight)
+	err = conn.QueryRow("insert into kraken_meta_order.meta_order (meta_order_type) values (\""+metaOrder.MetaOrderType+"\") RETURNING *", 42).Scan(&name, &weight)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		return nil, err
