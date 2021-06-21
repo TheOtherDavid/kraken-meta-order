@@ -1,14 +1,10 @@
 # kraken-meta-order
 This is a tool to help make and manage more complex crypto orders with the Kraken exchange.
 
-Build app with:
+Start the app with:
 
 ```
-docker build -t kraken-meta-order .
+docker-compose up
 ```
 
-Run app on port 8080 with:
-
-```
-docker run -d -p 8080:8080 kraken-meta-order
-```
+The DB will start on port 5432, and the server will listen on port 8080. You can use the included Postman collection to create, read, update and delete meta orders.
