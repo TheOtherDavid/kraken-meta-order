@@ -1,0 +1,53 @@
+{
+	"variables": [],
+	"info": {
+		"name": "kraken-meta-order",
+		"_postman_id": "86e7d55d-114b-0a24-e695-0fde5106b840",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Order",
+			"request": {
+				"url": "http://localhost:8080/create/1",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"metaOrderType\": \"STOP_LOSS_TAKE_PROFIT\",\r\n\t\"exchange\": \"KRAKEN\",\r\n\t\"stopLossTakeProfit\": {\r\n\t\t\"stopLossPrice\": 58.5,\r\n\t\t\"takeProfitPrice\": 45.0\r\n\t}\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Order",
+			"request": {
+				"url": "http://localhost:8080/delete/1",
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get Order",
+			"request": {
+				"url": "http://localhost:8080/1",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
