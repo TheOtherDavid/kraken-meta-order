@@ -34,16 +34,24 @@ func CreateMetaOrder(metaOrder models.MetaOrder) (*models.MetaOrder, error) {
 
 	defer conn.Close()
 
-	var name string
-	var weight int64
-	log.Println("Beginning query.")
+	log.Println("Beginning query now.")
 
-	err = conn.QueryRow("insert into kraken_meta_order.meta_order (meta_order_type) values (\""+metaOrder.MetaOrderType+"\") RETURNING *", 42).Scan(&name, &weight)
+	// query := `insert into kraken_meta_order.meta_order (meta_order_id, meta_order_type, status)
+	// values (nextval('kraken_meta_order.meta_order_id'),  '` + metaOrder.MetaOrderType + `', 'ACTIVE') RETURNING *`
+
+	query := `insert into kraken_meta_order.meta_order (meta_order_id, meta_order_type, status, exchange) 
+	values (nextval('kraken_meta_order.meta_order_id'), '` + metaOrder.MetaOrderType + `', 'ACTIVE', '` + metaOrder.Exchange + `') RETURNING *`
+
+	log.Println(query)
+
+	m := &models.MetaOrder{}
+
+	err = conn.QueryRow(query).Scan(&m.MetaOrderId, &m.MetaOrderType, &m.Status, &m.Exchange, &m.CreateDateTime, &m.CreateUserName, &m.LastUpdateDateTime, &m.LastUpdateUserName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		return nil, err
 	}
 
 	fmt.Println("Success.")
-	return nil, nil
+	return m, nil
 }
