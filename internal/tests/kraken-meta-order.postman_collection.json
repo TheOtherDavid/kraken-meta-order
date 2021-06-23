@@ -10,7 +10,7 @@
 		{
 			"name": "Create Order",
 			"request": {
-				"url": "http://localhost:8080/create/1",
+				"url": "http://localhost:8080/",
 				"method": "POST",
 				"header": [
 					{
@@ -41,7 +41,7 @@
 		{
 			"name": "Get Order",
 			"request": {
-				"url": "http://localhost:8080/1",
+				"url": "http://localhost:8080/4",
 				"method": "GET",
 				"header": [],
 				"body": {},

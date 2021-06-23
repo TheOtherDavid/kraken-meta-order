@@ -13,19 +13,17 @@ import (
 )
 
 func CreateMetaOrder(metaOrder models.MetaOrder) (*models.MetaOrder, error) {
-	//Do stuff here
 	log.Println("Trying to connect to DB.")
 	host := "database"
 	port := 5432
 	user := "postgres"
 	password := "postgres"
 	dbname := "postgres"
-	//conn, err := pgx.Connect(context.Background(), "postgresql://postgres:postgres@postgres:5432/postgres")
+
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	conn, err := sql.Open("postgres", dsn)
 
-	//I guess we're going to have to open a connection, and then connect to the right table, and then execute a query.
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		return nil, err
@@ -54,4 +52,56 @@ func CreateMetaOrder(metaOrder models.MetaOrder) (*models.MetaOrder, error) {
 
 	fmt.Println("Success.")
 	return m, nil
+}
+
+func GetMetaOrder(metaOrderId string) (*models.MetaOrder, error) {
+	conn, err := initializeDb()
+
+	log.Println("Beginning get meta order now.")
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	log.Println("Beginning query now.")
+
+	query := `select meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, last_udt_dtm, last_udt_usr_nm from kraken_meta_order.meta_order where meta_order_id = ` + metaOrderId
+
+	log.Println(query)
+
+	m := &models.MetaOrder{}
+
+	err = conn.QueryRow(query).Scan(&m.MetaOrderId, &m.MetaOrderType, &m.Status, &m.Exchange, &m.CreateDateTime, &m.CreateUserName, &m.LastUpdateDateTime, &m.LastUpdateUserName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Println("Success.")
+	return m, nil
+}
+
+func initializeDb() (*sql.DB, error) {
+	log.Println("Trying to connect to DB.")
+	host := "database"
+	port := 5432
+	user := "postgres"
+	password := "postgres"
+	dbname := "postgres"
+
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	conn, err := sql.Open("postgres", dsn)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		return nil, err
+	}
+
+	log.Println("Connected to DB.")
+
+	return conn, nil
 }
