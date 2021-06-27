@@ -84,6 +84,49 @@ func GetMetaOrder(metaOrderId string) (*models.MetaOrder, error) {
 	return m, nil
 }
 
+func ListMetaOrders() ([]*models.MetaOrder, error) {
+	conn, err := initializeDb()
+
+	log.Println("Beginning get meta order now.")
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	log.Println("Beginning query now.")
+
+	query := `select meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, last_udt_dtm, last_udt_usr_nm from kraken_meta_order.meta_order`
+
+	log.Println(query)
+
+	result := []*models.MetaOrder{}
+
+	rows, err := conn.Query(query)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		m := &models.MetaOrder{}
+		err = rows.Scan(&m.MetaOrderId, &m.MetaOrderType, &m.Status, &m.Exchange, &m.CreateDateTime, &m.CreateUserName, &m.LastUpdateDateTime, &m.LastUpdateUserName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Parse result failed: %v\n", err)
+			return nil, err
+		}
+		result = append(result, m)
+	}
+
+	fmt.Println("Success.")
+	return result, nil
+}
+
 func initializeDb() (*sql.DB, error) {
 	log.Println("Trying to connect to DB.")
 	host := "database"

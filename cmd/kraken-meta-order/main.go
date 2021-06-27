@@ -1,3 +1,4 @@
+// Version 0.2.0
 package main
 
 import (
@@ -51,7 +52,7 @@ func createMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 func getMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		metaOrderId := mux.Vars(r)["msg"]
+		metaOrderId := mux.Vars(r)["id"]
 
 		returnedMetaOrder, err := db.GetMetaOrder(metaOrderId)
 		if err != nil {
@@ -65,6 +66,21 @@ func getMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func listMetaOrders() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		returnedMetaOrders, err := db.ListMetaOrders()
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Error reading from DB")
+			return
+		}
+
+		defer r.Body.Close()
+
+		json.NewEncoder(w).Encode(returnedMetaOrders)
+	}
+}
+
 func deleteMetaOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Delete Order")
 }
@@ -72,8 +88,9 @@ func deleteMetaOrder(w http.ResponseWriter, r *http.Request) {
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", createMetaOrder()).Methods("POST")
-	myRouter.HandleFunc("/{msg}", getMetaOrder()).Methods("GET")
-	myRouter.HandleFunc("/delete/{msg}", deleteMetaOrder).Methods("POST")
+	myRouter.HandleFunc("/list", listMetaOrders()).Methods("GET")
+	myRouter.HandleFunc("/{id}", getMetaOrder()).Methods("GET")
+	myRouter.HandleFunc("/delete/{id}", deleteMetaOrder).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8080", myRouter))
 
 }
