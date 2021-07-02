@@ -127,6 +127,36 @@ func ListMetaOrders() ([]*models.MetaOrder, error) {
 	return result, nil
 }
 
+func DeleteMetaOrder(metaOrderId string) (*models.MetaOrder, error) {
+	log.Println("Beginning delete meta order now.")
+
+	conn, err := initializeDb()
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	log.Println("Beginning query now.")
+
+	query := `update kraken_meta_order.meta_order set status='CANCELLED' where meta_order_id = ` + metaOrderId + ` returning *`
+
+	log.Println(query)
+
+	m := &models.MetaOrder{}
+
+	err = conn.QueryRow(query).Scan(&m.MetaOrderId, &m.MetaOrderType, &m.Status, &m.Exchange, &m.CreateDateTime, &m.CreateUserName, &m.LastUpdateDateTime, &m.LastUpdateUserName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Println("Success.")
+	return m, nil
+}
+
 func initializeDb() (*sql.DB, error) {
 	log.Println("Trying to connect to DB.")
 	host := "database"
