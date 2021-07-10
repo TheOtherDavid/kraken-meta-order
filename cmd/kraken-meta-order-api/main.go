@@ -66,10 +66,16 @@ func getMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listMetaOrders() func(w http.ResponseWriter, r *http.Request) {
+func findMetaOrders() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		returnedMetaOrders, err := db.ListMetaOrders()
+		status := r.URL.Query().Get("status")
+
+		searchCriteria := models.SearchCriteria{
+			Status: status,
+		}
+
+		returnedMetaOrders, err := db.FindMetaOrders(searchCriteria)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Error reading from DB")
 			return
@@ -101,7 +107,7 @@ func deleteMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/{id}", deleteMetaOrder()).Methods("DELETE")
-	myRouter.HandleFunc("/list", listMetaOrders()).Methods("GET")
+	myRouter.HandleFunc("/find", findMetaOrders()).Methods("GET")
 	myRouter.HandleFunc("/", createMetaOrder()).Methods("POST")
 	myRouter.HandleFunc("/{id}", getMetaOrder()).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", myRouter))
