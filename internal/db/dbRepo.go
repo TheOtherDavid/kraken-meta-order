@@ -96,7 +96,9 @@ func FindMetaOrders(searchCriteria models.SearchCriteria) ([]*models.MetaOrder, 
 
 	defer conn.Close()
 
-	query := "SELECT meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, last_udt_dtm, last_udt_usr_nm FROM kraken_meta_order.meta_order WHERE status = $1"
+	query := `SELECT meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, 
+	last_udt_dtm, last_udt_usr_nm FROM kraken_meta_order.meta_order 
+	WHERE (CAST($1 AS TEXT) = '' OR status = $1)`
 
 	stmt, err := conn.Prepare(query)
 	if err != nil {
