@@ -84,10 +84,10 @@ func GetMetaOrder(metaOrderId string) (*models.MetaOrder, error) {
 	return m, nil
 }
 
-func ListMetaOrders() ([]*models.MetaOrder, error) {
+func FindMetaOrders(searchCriteria models.SearchCriteria) ([]*models.MetaOrder, error) {
 	conn, err := initializeDb()
 
-	log.Println("Beginning get meta order now.")
+	log.Println("Beginning find meta order now.")
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
@@ -96,15 +96,23 @@ func ListMetaOrders() ([]*models.MetaOrder, error) {
 
 	defer conn.Close()
 
-	log.Println("Beginning query now.")
+	query := `SELECT meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, 
+	last_udt_dtm, last_udt_usr_nm FROM kraken_meta_order.meta_order 
+	WHERE (CAST($1 AS TEXT) = '' OR status = $1)`
 
-	query := `select meta_order_id, meta_order_type, status, exchange, crt_dtm, crt_usr_nm, last_udt_dtm, last_udt_usr_nm from kraken_meta_order.meta_order`
+	stmt, err := conn.Prepare(query)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error creating query: %v\n", err)
+		return nil, err
+	}
 
-	log.Println(query)
+	log.Println(stmt)
 
 	result := []*models.MetaOrder{}
 
-	rows, err := conn.Query(query)
+	log.Println("Querying DB now.")
+
+	rows, err := stmt.Query(searchCriteria.Status)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Query failed: %v\n", err)

@@ -30,9 +30,15 @@
 		{
 			"name": "Delete Order",
 			"request": {
-				"url": "http://localhost:8080/delete/1",
-				"method": "POST",
-				"header": [],
+				"url": "http://localhost:8080/1",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
 				"body": {},
 				"description": ""
 			},
@@ -41,9 +47,99 @@
 		{
 			"name": "Get Order",
 			"request": {
-				"url": "http://localhost:8080/4",
+				"url": "http://localhost:8080/1",
 				"method": "GET",
 				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Find Orders Active",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/find/?status=ACTIVE",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"find",
+						""
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "ACTIVE",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Find Orders Cacelled",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/find?status=CANCELLED",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"find"
+					],
+					"query": [
+						{
+							"key": "status",
+							"value": "CANCELLED",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Find Orders All",
+			"request": {
+				"url": "http://localhost:8080/find/",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
 				"body": {},
 				"description": ""
 			},
