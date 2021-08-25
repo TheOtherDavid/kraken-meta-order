@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kraken-meta-order-db
+  labels:
+    app: db
+spec:
+  containers:
+    - name: web-ctr
+      image: postgres:13-alpine
+      envFrom:
+        - configMapRef:
+            name: postgres-config
+      ports:
+        - containerPort: 5432

@@ -104,10 +104,26 @@ func deleteMetaOrder() func(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type healthCheckResponse struct {
+	Status string `json:"status"`
+}
+
+func health() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		response := healthCheckResponse{
+			Status: "Ok",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/{id}", deleteMetaOrder()).Methods("DELETE")
 	myRouter.HandleFunc("/find", findMetaOrders()).Methods("GET")
+	myRouter.HandleFunc("/health", health()).Methods("GET")
 	myRouter.HandleFunc("/", createMetaOrder()).Methods("POST")
 	myRouter.HandleFunc("/{id}", getMetaOrder()).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", myRouter))
