@@ -1,5 +1,5 @@
 # kraken-meta-order
-This is a tool to help make and manage more complex crypto orders with the Kraken exchange.
+This is a tool to help make and manage more complex crypto orders with the Kraken exchange. I kind of abandoned it when the crypto craze of 2021 died down. Maybe I'll start working on it again if Bitcoin gets back to 50k.
 
 Start the app with:
 
